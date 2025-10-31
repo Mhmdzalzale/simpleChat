@@ -78,6 +78,9 @@ public class ClientConsole implements ChatIF
    */
   public void accept() 
   {
+
+	  
+	  
     try
     {
 
@@ -85,8 +88,43 @@ public class ClientConsole implements ChatIF
 
       while (true) 
       {
+    	 
         message = fromConsole.nextLine();
         client.handleMessageFromClientUI(message);
+        String [] parts= message.split(" ");
+        String command= parts[0];
+        String argument=null;
+        if(parts.length>1)
+        	argument=parts[1];
+        
+        switch(message) {
+        case "#quit":
+        	client.closeConnection();
+        	System.exit(0);
+        	break;
+        case "#logoff":
+        	client.closeConnection();
+        	break;
+        case "#sethost":
+        	if(client.isConnected()) {
+        		System.out.println("Error! log off to set host. ");}
+        	else if(argument!=null) {
+        		client.setHost(argument);}
+        	else 
+        		System.out.println("No host provided. ");
+        	break;
+        case "#setport":
+        	if(client.isConnected()) {
+        		System.out.print("Error! log off to set port. ");
+        	}
+        	else if(argument!=null) {
+        		client.setPort(Integer.parseInt(argument));
+        	}
+        	else
+        		System.out.println("No port provided. ");
+        		
+        
+        }
       }
     } 
     catch (Exception ex) 
@@ -118,7 +156,7 @@ public class ClientConsole implements ChatIF
   public static void main(String[] args) 
   {
     String host = "";
-
+    int port;
 
     try
     {
@@ -128,7 +166,13 @@ public class ClientConsole implements ChatIF
     {
       host = "localhost";
     }
-    ClientConsole chat= new ClientConsole(host, DEFAULT_PORT);
+    if(args.length<2) {
+    	port= DEFAULT_PORT;
+    }
+    else
+    	port=Integer.parseInt(args[1]);
+    
+    ClientConsole chat= new ClientConsole(host, port);
     chat.accept();  //Wait for console data
   }
 }
