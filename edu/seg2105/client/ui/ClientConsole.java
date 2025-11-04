@@ -97,7 +97,7 @@ public class ClientConsole implements ChatIF
         if(parts.length>1)
         	argument=parts[1];
         
-        switch(message) {
+        switch(command) {
         case "#quit":
         	client.closeConnection();
         	System.exit(0);
@@ -122,8 +122,29 @@ public class ClientConsole implements ChatIF
         	}
         	else
         		System.out.println("No port provided. ");
-        		
-        
+        	break;
+        case "#login":
+        	if(client.isConnected()) {
+        		System.out.println("You are already logged in. ");
+        	}
+        	else 
+        		client.openConnection();
+        	break;
+        case "gethost":
+        	client.getHost();
+        	break;
+        case "getport":
+        	client.getPort();
+        	break;
+        default:
+            if (!message.startsWith("#")) {
+                client.handleMessageFromClientUI(message);
+            } else {
+                System.out.println("Unrecognizable command. ");
+            }
+            break;
+
+
         }
       }
     } 
