@@ -38,13 +38,15 @@ public class ChatClient extends AbstractClient
    * @param port The port number to connect on.
    * @param clientUI The interface type variable.
    */
+  private String loginId;
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
+  public ChatClient(String loginId,String host, int port, ChatIF clientUI) 
     throws IOException 
   {
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
     openConnection();
+    this.loginId=loginId;
   }
 
   
@@ -94,7 +96,7 @@ public class ChatClient extends AbstractClient
     System.exit(0);
   }
   protected void connectionClosed() {
-	  System.out.println("Server has shutdown");
+	  System.out.println("Connection closed. ");
 	  System.exit(0);
   }
   protected void connectionException(Exception exception) {
@@ -102,6 +104,15 @@ public class ChatClient extends AbstractClient
 	  System.out.println("System shutdown!");
 	  
   }
+  protected void connectionEstablished() {
+	  try {
+		sendToServer("#login "+loginId);
+	  } catch (IOException e) {
+		e.printStackTrace();
+	  }
+
+  }
+  
   
   
   

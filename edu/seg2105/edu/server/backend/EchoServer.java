@@ -45,12 +45,52 @@ public class EchoServer extends AbstractServer
    * @param msg The message received from the client.
    * @param client The connection from which the message originated.
    */
-  public void handleMessageFromClient
-    (Object msg, ConnectionToClient client)
-  {
-    System.out.println("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
+  @Override
+  public void handleMessageFromClient(Object msg, ConnectionToClient client) {
+      String message = (String) msg;
+
+      String loginId = (String) client.getInfo("loginId");
+
+
+      
+      if (message.startsWith("#login")) {
+          String[] parts = message.split(" ");
+          if (parts.length < 2) {
+              try {
+                  client.sendToClient("ERROR - Usage: #login <loginId>");
+                  client.close();
+              } catch (Exception e) {}
+              return;
+          }
+
+          if (client.getInfo("loginId") != null) {
+              try {
+                  client.sendToClient("ERROR - Already logged in.");
+                  client.close();
+              } catch (Exception e) {}
+              return;
+          }
+          loginId = parts[1];
+          client.setInfo("loginId", loginId);
+          System.out.println("Client " + loginId + " has logged in.");
+          this.sendToAllClients(loginId + " has logged on.");
+          return;
+      }
+
+      String sender = (String) client.getInfo("loginId");
+
+      if (sender == null) {
+          try {
+              client.sendToClient("ERROR! Must log in first.");
+              client.close();
+          } catch (Exception e) {}
+          return;
+      }
+
+      System.out.println("Message received: " + message + " from " + sender);
+      this.sendToAllClients(sender + "> " + message);
   }
+
     
   /**
    * This method overrides the one in the superclass.  Called
@@ -106,11 +146,15 @@ public class EchoServer extends AbstractServer
       System.out.println("ERROR - Could not listen for clients!");
     }
   }
-  protected void clientConnected() {
-	 System.out.println("Connected, Hello Client! ");
+  @Override
+  protected void clientConnected(ConnectionToClient client) {
+      System.out.println("A new client has connected to the server.");
   }
-  protected void clientDisconnected() {
-	  
+
+  @Override
+  synchronized protected void clientDisconnected(ConnectionToClient client) {
+      System.out.println("A client has disconnected.");
   }
+
 }
 //End of EchoServer class
